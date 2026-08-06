@@ -100,7 +100,7 @@ vectorstore = build_vectorstore(chunks, file_key)
 
 # ============ LLM + PROMPT ============
 llm = ChatGoogleGenerativeAI(
-    model="gemini-3.6-flash",
+    model="gemini-1.5-flash",
     google_api_key=GOOGLE_API_KEY,
     temperature=0.3,
 )
@@ -139,7 +139,6 @@ def generate_flashcards(context_text: str, num_cards: int):
     try:
         raw = chain.invoke({"context": context_text, "num_cards": num_cards})
     except Exception as e:
-        # Surface the real error instead of Streamlit Cloud's redacted message
         st.error(f"Gemini API call failed: {e}")
         return []
     return parse_flashcards(raw)
@@ -148,41 +147,23 @@ def generate_flashcards(context_text: str, num_cards: int):
 if "flashcards" not in st.session_state:
     st.session_state.flashcards = []
 
-# ============ MODE SELECTION ============
+# ============ GENERATE FLASHCARDS ============
 st.subheader("Generate Flashcards")
-mode = st.radio(
-    "How do you want to generate flashcards?",
-    ["From the whole PDF", "From a specific topic"],
-    horizontal=True,
-)
-num_cards = st.slider("Number of flashcards", min_value=3, max_value=20, value=8)
 
-if mode == "From the whole PDF":
-    if st.button("Generate Flashcards", type="primary"):
-        with st.spinner("Generating flashcards from your notes..."):
-            # Sample chunks spread across the document so cards aren't all from page 1
-            step = max(1, len(chunks) // num_cards)
-            sampled = chunks[::step][: max(5, num_cards)]
-            context_text = format_docs(sampled)
-            cards = generate_flashcards(context_text, num_cards)
-            if cards:
-                st.session_state.flashcards = cards
-            else:
-                st.error("Couldn't parse flashcards from the model's response. Please try again.")
+# Users can only select the number of cards
+num_cards = st.slider("Select number of flashcards to generate", min_value=3, max_value=20, value=8)
 
-else:
-    topic = st.text_input("Enter a topic from your notes (e.g. 'Newton's laws')")
-    k_value = st.slider("How many chunks to retrieve as context", 1, 10, 4)
-    if st.button("Generate Flashcards", type="primary") and topic:
-        with st.spinner("Retrieving relevant content and generating flashcards..."):
-            retriever = vectorstore.as_retriever(search_kwargs={"k": k_value})
-            docs = retriever.invoke(topic)
-            context_text = format_docs(docs)
-            cards = generate_flashcards(context_text, num_cards)
-            if cards:
-                st.session_state.flashcards = cards
-            else:
-                st.error("Couldn't parse flashcards from the model's response. Please try again.")
+if st.button("Generate Flashcards", type="primary"):
+    with st.spinner("Generating flashcards from your whole PDF..."):
+        # Sample chunks spread across the full document
+        step = max(1, len(chunks) // num_cards)
+        sampled = chunks[::step][: max(5, num_cards)]
+        context_text = format_docs(sampled)
+        cards = generate_flashcards(context_text, num_cards)
+        if cards:
+            st.session_state.flashcards = cards
+        else:
+            st.error("Couldn't parse flashcards from the model's response. Please try again.")
 
 # ============ DISPLAY FLASHCARDS ============
 if st.session_state.flashcards:
