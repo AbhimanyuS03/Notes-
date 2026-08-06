@@ -1,11 +1,9 @@
+streamlit
 langchain
 langchain-community
+langchain-text-splitters
 langchain-google-genai
-sentence-transformers
 faiss-cpu
+sentence-transformers
 pypdf
-python-dotenv
-streamlit
-streamlit-pdf
-numpy
-torchvision
+pandas
