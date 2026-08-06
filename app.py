@@ -14,6 +14,37 @@ from langchain_core.output_parsers import StrOutputParser
 st.set_page_config(page_title="Flashcard Generator", layout="wide")
 st.title("📚 Flashcard Generator from Notes (RAG)")
 
+HERO_BANNER = """
+<div style="display:flex; justify-content:center; margin: 10px 0 30px 0;">
+  <svg width="620" height="150" viewBox="0 0 620 150" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(40,25) rotate(-8)">
+      <rect width="140" height="95" rx="14" fill="#FF4B6E" opacity="0.9"/>
+    </g>
+    <g transform="translate(70,15) rotate(-2)">
+      <rect width="140" height="95" rx="14" fill="#4B7BFF" opacity="0.9"/>
+    </g>
+    <g transform="translate(100,10)">
+      <rect width="150" height="100" rx="14" fill="#FFFFFF" stroke="#22C55E" stroke-width="4"/>
+      <line x1="20" y1="35" x2="130" y2="35" stroke="#22C55E" stroke-width="4" stroke-linecap="round"/>
+      <line x1="20" y1="55" x2="110" y2="55" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+      <line x1="20" y1="75" x2="90" y2="75" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(300,45)">
+      <circle cx="0" cy="0" r="6" fill="#F59E0B"/>
+      <circle cx="25" cy="-15" r="4" fill="#F59E0B"/>
+      <circle cx="30" cy="15" r="3" fill="#F59E0B"/>
+    </g>
+    <text x="350" y="60" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#1E293B">
+      Turn your notes into
+    </text>
+    <text x="350" y="95" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#4B7BFF">
+      instant flashcards
+    </text>
+  </svg>
+</div>
+"""
+st.markdown(HERO_BANNER, unsafe_allow_html=True)
+
 # ============ SIDEBAR: API KEY ============
 st.sidebar.title("Setup")
 GOOGLE_API_KEY = st.sidebar.text_input("GOOGLE_API_KEY", type="password")
