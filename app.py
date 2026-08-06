@@ -80,9 +80,11 @@ in simple question-and-answer format to help a student revise this material.
 
 Rules:
 - Each flashcard must have a clear, specific "question" and a concise "answer".
+- Each flashcard must also have an "emoji" field: ONE single emoji that visually represents the topic
+  of that specific flashcard (e.g. 🧬 for biology, ⚡ for physics/energy, 💰 for economics, 🧠 for psychology).
 - Do not invent facts that are not present in the context.
 - Return ONLY a valid JSON array, with no markdown code fences and no extra commentary. Format:
-[{{"question": "...", "answer": "..."}}, ...]
+[{{"question": "...", "answer": "...", "emoji": "..."}}, ...]
 
 Context:
 {context}
@@ -99,7 +101,10 @@ def parse_flashcards(raw_text: str):
             text = text[4:].strip()
     try:
         cards = json.loads(text)
-        return [c for c in cards if isinstance(c, dict) and "question" in c and "answer" in c]
+        valid = [c for c in cards if isinstance(c, dict) and "question" in c and "answer" in c]
+        for c in valid:
+            c.setdefault("emoji", "📌")
+        return valid
     except json.JSONDecodeError:
         return []
 
@@ -157,11 +162,12 @@ else:
 if st.session_state.flashcards:
     st.subheader(f"Your Flashcards ({len(st.session_state.flashcards)})")
     for i, card in enumerate(st.session_state.flashcards, start=1):
-        with st.expander(f"Card {i}: {card['question']}"):
+        emoji = card.get("emoji", "📌")
+        with st.expander(f"{emoji}  Card {i}: {card['question']}"):
             st.write(card["answer"])
 
     # ============ CSV EXPORT ============
-    df = pd.DataFrame(st.session_state.flashcards)
+    df = pd.DataFrame(st.session_state.flashcards)[["question", "answer"]]
     csv_data = df.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="⬇️ Download Flashcards as CSV",
