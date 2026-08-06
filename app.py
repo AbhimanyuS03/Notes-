@@ -68,7 +68,11 @@ def build_vectorstore(_chunks, _cache_key: str):
 vectorstore = build_vectorstore(chunks, file_key)
 
 # ============ LLM + PROMPT ============
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3)
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    google_api_key=GOOGLE_API_KEY,
+    temperature=0.3,
+)
 
 FLASHCARD_PROMPT = ChatPromptTemplate.from_template("""
 You are an expert study-guide creator. Based ONLY on the context below, generate {num_cards} flashcards
@@ -101,7 +105,12 @@ def parse_flashcards(raw_text: str):
 
 def generate_flashcards(context_text: str, num_cards: int):
     chain = FLASHCARD_PROMPT | llm | StrOutputParser()
-    raw = chain.invoke({"context": context_text, "num_cards": num_cards})
+    try:
+        raw = chain.invoke({"context": context_text, "num_cards": num_cards})
+    except Exception as e:
+        # Surface the real error instead of Streamlit Cloud's redacted message
+        st.error(f"Gemini API call failed: {e}")
+        return []
     return parse_flashcards(raw)
 
 # ============ SESSION STATE ============
