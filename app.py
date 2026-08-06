@@ -1,17 +1,4 @@
-#==============STEP 1:LOAD MODULES============
-!pip install -q langchain
-!pip install -q langchain-community
-!pip install -q langchain-google-genai
-!pip install -q langchain-groq
-!pip install -q langchain-huggingface
-!pip install -q sentence-transformers
-!pip install -q faiss-cpu
-!pip install -q pypdf
-!pip install -q python-dotenv
-!pip install -q tavily-python
-!pip install -q streamlit
-
-
+# =============STEP 1: LOAD MODULES===============
 import os
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -21,22 +8,28 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
+import streamlit as st
 import numpy
 import time
-import streamlit as st
 from PIL import Image
 from dotenv import load_dotenv
-
-
 from getpass import getpass
 import os
 
-GOOGLE_API_KEY = getpass('Enter GOOGLE_API_KEY')
+#====================STEP 2 API KEYS======================
+st.set_page_config(page_title = "Chat-With-PDF",
+              layout = "wide")
+
+
+st.sidebar.title("SET API CONFIG")
+st.title("Flashcard by Notes PDF")
+GOOGLE_API_KEY = st.sidebar.text_input("GOOGLE_API_KEY",type = "password")
+os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 if GOOGLE_API_KEY:
-    os.environ['GOOGLE_API_KEY'] = GOOGLE_API_KEY
-
-print('done')
+  st.sidebar.success("API key Loaded!!")
+else:
+  st.sidebar.info("Give API key")
 
 
 
